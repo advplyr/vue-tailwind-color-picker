@@ -1,9 +1,9 @@
 <template>
-  <div class="border min-w-min w-min rounded-lg">
+  <div class="border min-w-min w-min rounded-lg bg-white">
     <div class="p-4 w-60">
       <div class="w-52 h-40" :style="{ backgroundColor: canvasColor }">
         <div class="w-full h-full" style="background-image:linear-gradient(90deg,#fff,rgba(204,154,129,0));">
-          <div ref="canvas" class="w-full h-full relative cursor-pointer overflow-hidden" style="background-image:linear-gradient(0deg,#000,rgba(204,154,129,0));" @mousedown="mousedownCanvas">
+          <div ref="canvas" class="w-full h-full relative cursor-pointer" style="background-image:linear-gradient(0deg,#000,rgba(204,154,129,0));" @mousedown="mousedownCanvas">
             <div ref="canvasCursor" class="h-4 w-4 border border-gray-200 rounded-full bg-white absolute -left-2 -top-2 pointer-events-none" style="box-shadow:2px 2px 2px 0 rgb(0 0 0 / 20%)"></div>
           </div>
         </div>
@@ -43,7 +43,7 @@
           </div>
         </div>
         <div v-show="inputType === 'hexa'" class="mr-3">
-          <p class="text-gray-500 text-sm">HEXA</p>
+          <p class="text-gray-500 text-center text-sm">HEXA</p>
           <input v-model="colorLazy.hexa" @input="hexaInputUpdated" @blur="blurInputHexa" class="shadow appearance-none border rounded text-center w-40 h-8 text-grey-darker" />
         </div>
         <div class="px-2 text-gray-500 cursor-pointer" @click.stop.prevent="toggleInputs">
@@ -53,12 +53,17 @@
         </div>
       </div>
       <div class="flex mt-2 flex-wrap px-1">
-        <template v-for="swatch in swatches">
-          <div :key="swatch" class="w-8 h-8 m-1 cursor-pointer rounded-full shadow-md" :style="{ backgroundColor: swatch }" @click="selectSwatch(swatch)" />
+        <template v-for="swatch in swatchesLazy">
+          <div :key="swatch" class="w-8 h-8 m-1 relative cursor-pointer rounded-full shadow-md" :style="{ backgroundColor: swatch }" @click="selectSwatch(swatch)">
+            <div v-show="inputValue === swatch" class="h-full w-full rounded-full border-2 border-gray-200 p-0 relative"></div>
+          </div>
         </template>
-        <div :key="swatch" class="w-8 h-8 m-1 cursor-pointer rounded-full shadow-md text-gray-600" :style="{ backgroundColor: color }" @click="addCurrentSwatch">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+        <div class="w-8 h-8 m-1 cursor-pointer rounded-full shadow-md text-gray-600 flex items-center justify-center" :style="{ backgroundColor: color }" @click.stop="addRemoveCurrentSwatch">
+          <svg v-if="!hasSelectedSwatch" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-6 w-6">
             <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
+          </svg>
+          <svg v-else class="h-5 w-5" viewBox="0 0 24 24">
+            <path fill="currentColor" d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" />
           </svg>
         </div>
       </div>
@@ -67,12 +72,14 @@
 </template>
 
 <script>
-import '../tailwind.css'
-
 export default {
   name: 'VueTailwindColorPicker',
   props: {
-    value: String
+    value: String,
+    swatches: {
+      type: Array,
+      default: () => []
+    }
   },
   data() {
     return {
@@ -113,21 +120,21 @@ export default {
         g: 0,
         b: 0
       },
-      swatches: [
-        '#f94144',
-        '#f3722c',
-        '#f8961e',
-        '#f9c74f',
-        '#90be6d',
-        '#43aa8b',
-        '#577590',
-        '#22223b',
-        '#4a4e69',
-        '#c9ada7'
-      ]
+      swatchesLazy: []
     }
   },
   computed: {
+    inputValue: {
+      get() {
+        return this.value
+      },
+      set(val) {
+        this.$emit('input', val)
+      }
+    },
+    hasSelectedSwatch() {
+      return this.swatchesLazy.includes(this.inputValue)
+    },
     color() {
       return `rgba(${this.colorData.r}, ${this.colorData.g}, ${this.colorData.b}, ${this.colorData.a})`
     },
@@ -142,6 +149,9 @@ export default {
   },
   methods: {
     mousedownCanvas(e) {
+      if (e.which !== 1) {
+        return
+      }
       this.registerListeners()
 
       this.draggingCanvasCursor = true
@@ -155,6 +165,9 @@ export default {
       e.preventDefault()
     },
     mousedownLine(e) {
+      if (e.which !== 1) {
+        return
+      }
       this.registerListeners()
 
       this.draggingLineCursor = true
@@ -167,6 +180,9 @@ export default {
       e.preventDefault()
     },
     mousedownOpacity(e) {
+      if (e.which !== 1) {
+        return
+      }
       this.registerListeners()
 
       this.draggingOpacityCursor = true
@@ -240,6 +256,7 @@ export default {
         this.componentToHex(this.colorData.b) +
         this.componentToHex(Math.round(this.colorData.a * 255))
       this.colorLazy.hexa = this.colorData.hexa
+      this.inputValue = this.colorData.hexa
     },
     calculateLineColor(linePos) {
       var perc = linePos / this.lineWidth
@@ -322,7 +339,35 @@ export default {
       })
       return normalized
     },
+    initSwatches() {
+      if (this.swatches !== null && Array.isArray(this.swatches)) {
+        var cleanedSwatches = this.swatches.map((s) => this.cleanHexa(s))
+        cleanedSwatches.forEach((swatch) => {
+          if (!this.swatchesLazy.includes(swatch)) {
+            this.swatchesLazy.push(swatch)
+          }
+        })
+      } else {
+        var cleanedSwatches = [
+          '#f94144',
+          '#f3722c',
+          '#f8961e',
+          '#f9c74f',
+          '#90be6d',
+          '#43aa8b',
+          '#577590',
+          '#22223b',
+          '#4a4e69',
+          '#c9ada7'
+        ].map((s) => this.cleanHexa(s))
+        this.swatchesLazy = cleanedSwatches
+      }
+    },
     init() {
+      if (this.value) {
+        this.colorLazy = this.parseHexa(this.value)
+      }
+      this.initSwatches()
       this.validate()
       this.setUICursors()
     },
@@ -467,7 +512,6 @@ export default {
           variablePerc = 1 - this.colorData.g / 255
         }
       }
-      // console.log('Sector', sector)
       var sectorLength = this.lineWidth / 6
       var variableSectorLeft = variablePerc * sectorLength
 
@@ -477,7 +521,6 @@ export default {
       this.lineColorData.r = Math.min(255, Math.max(0, Math.round(normalized.r * 255)))
       this.lineColorData.g = Math.min(255, Math.max(0, Math.round(normalized.g * 255)))
       this.lineColorData.b = Math.min(255, Math.max(0, Math.round(normalized.b * 255)))
-      // console.log('Canvas Color', this.canvasColor, normalized)
 
       Array.from('rgb').forEach((col) => {
         if (this.lineColorData[col] === 0) {
@@ -517,12 +560,21 @@ export default {
       var parsedHexa = this.parseHexa(swatchHexa)
       this.colorData = { ...parsedHexa }
       this.colorLazy = { ...parsedHexa }
+      this.inputValue = parsedHexa.hexa
 
       this.setUICursors()
     },
-    addCurrentSwatch() {
-      this.$emit('addSwatch', this.color)
-      this.swatches.push(this.color)
+    deleteSwatch(swatch) {
+      this.swatchesLazy = this.swatchesLazy.filter((s) => s !== swatch)
+      this.$emit('deleteSwatch', swatch)
+    },
+    addRemoveCurrentSwatch() {
+      if (this.hasSelectedSwatch) {
+        this.deleteSwatch(this.inputValue)
+      } else {
+        this.$emit('addSwatch', this.inputValue)
+        this.swatchesLazy.push(this.inputValue)
+      }
     }
   },
   mounted() {

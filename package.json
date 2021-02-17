@@ -1,6 +1,6 @@
 {
   "name": "vue-tailwind-color-picker",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "main": "dist/vue-tailwind-color-picker.ssr.js",
   "browser": "dist/vue-tailwind-color-picker.esm.js",

@@ -34,7 +34,7 @@ const baseConfig = {
         customResolver: resolve({
           extensions: ['.js', '.jsx', '.ts', '.tsx', '.vue'],
         }),
-      }),
+      })
     ],
     replace: {
       'process.env.NODE_ENV': JSON.stringify('production'),
@@ -99,7 +99,7 @@ if (!argv.format || argv.format === 'es') {
           ],
         ],
       }),
-      commonjs(),
+      commonjs()
     ],
   };
   buildFormats.push(esConfig);
