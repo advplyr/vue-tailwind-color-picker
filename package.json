@@ -1,7 +1,7 @@
 {
   "name": "vue-tailwind-color-picker",
-  "version": "1.0.2",
-  "description": "",
+  "version": "1.0.3",
+  "description": "Color picker for vue using tailwind2",
   "main": "dist/vue-tailwind-color-picker.ssr.js",
   "browser": "dist/vue-tailwind-color-picker.esm.js",
   "module": "dist/vue-tailwind-color-picker.esm.js",
@@ -48,5 +48,15 @@
   },
   "engines": {
     "node": ">=12"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mcoop320/vue-tailwind-color-picker.git"
+  },
+  "homepage": "https://github.com/mcoop320/vue-tailwind-color-picker",
+  "keywords": [
+    "color",
+    "picker",
+    "tailwind"
+  ]
 }
