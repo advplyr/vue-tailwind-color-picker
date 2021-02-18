@@ -4,15 +4,14 @@ Color picker for vue using Tailwind v2.
 
 **Requires Tailwind**
 
-## Demo
-https://mcoop320.github.io/vue-tailwind-color-picker/
+## [Live demo](https://mcoop320.github.io/vue-tailwind-color-picker/)
 
-<img src="https://raw.githubusercontent.com/mcoop320/vue-tailwind-color-picker/master/sample.png" width="100%" align="center" />
+<img src="https://raw.githubusercontent.com/mcoop320/vue-tailwind-color-picker/master/sample.png" />
 
 ## Installation
 
 ```bash
-npm install vue-tailwind-color-picker
+$ npm install vue-tailwind-color-picker
 ```
 
 ## Usage
