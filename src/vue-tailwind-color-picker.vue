@@ -46,13 +46,13 @@
           <p class="text-gray-500 text-center text-sm">HEXA</p>
           <input v-model="colorLazy.hexa" @input="hexaInputUpdated" @blur="blurInputHexa" class="shadow appearance-none border rounded text-center w-40 h-8 text-grey-darker" />
         </div>
-        <div class="px-2 text-gray-500 cursor-pointer" @click.stop.prevent="toggleInputs">
+        <div class="px-2 text-gray-500 cursor-pointer" @mousedown.prevent @click.stop.prevent="toggleInputs">
           <svg style="width:24px;height:24px" viewBox="0 0 24 24">
             <path fill="currentColor" d="M12,18.17L8.83,15L7.42,16.41L12,21L16.59,16.41L15.17,15M12,5.83L15.17,9L16.58,7.59L12,3L7.41,7.59L8.83,9L12,5.83Z" />
           </svg>
         </div>
       </div>
-      <div class="flex mt-2 flex-wrap px-1">
+      <div v-if="!hideSwatches" class="flex mt-2 flex-wrap px-1">
         <template v-for="swatch in swatchesLazy">
           <div :key="swatch" class="w-8 h-8 m-1 relative cursor-pointer rounded-full shadow-md" :style="{ backgroundColor: swatch }" @click="selectSwatch(swatch)">
             <div v-show="inputValue === swatch" class="h-full w-full rounded-full border-2 border-gray-200 p-0 relative"></div>
@@ -79,7 +79,8 @@ export default {
     swatches: {
       type: Array,
       default: () => []
-    }
+    },
+    hideSwatches: Boolean
   },
   data() {
     return {
@@ -89,6 +90,7 @@ export default {
       draggingLineCursor: false,
       draggingCanvasCursor: false,
       draggingOpacityCursor: false,
+      dragStartColor: null,
       lineWidth: 160,
       lineLeft: 0,
       canvasWidth: 208,
@@ -132,6 +134,14 @@ export default {
         this.$emit('input', val)
       }
     },
+    swatchesValue: {
+      get() {
+        return this.swatches || []
+      },
+      set(val) {
+        this.$emit('update:swatches', val)
+      }
+    },
     hasSelectedSwatch() {
       return this.swatchesLazy.includes(this.inputValue)
     },
@@ -154,6 +164,7 @@ export default {
       }
       this.registerListeners()
 
+      this.dragStartColor = this.color
       this.draggingCanvasCursor = true
       this.setSizePoses()
       this.canvasCursor = this.$refs.canvasCursor
@@ -170,6 +181,7 @@ export default {
       }
       this.registerListeners()
 
+      this.dragStartColor = this.color
       this.draggingLineCursor = true
       this.setSizePoses()
       this.lineCursor = this.$refs.lineCursor
@@ -185,6 +197,7 @@ export default {
       }
       this.registerListeners()
 
+      this.dragStartColor = this.color
       this.draggingOpacityCursor = true
       this.setSizePoses()
       this.opacityCursor = this.$refs.opacityCursor
@@ -196,6 +209,11 @@ export default {
       e.preventDefault()
     },
     mouseup(e) {
+      if (this.draggingLineCursor || this.draggingCanvasCursor || this.draggingOpacityCursor) {
+        if (this.dragStartColor !== this.color) {
+          this.$emit('change', this.color)
+        }
+      }
       this.draggingLineCursor = false
       this.draggingCanvasCursor = false
       this.draggingOpacityCursor = false
@@ -367,7 +385,7 @@ export default {
       if (this.value) {
         this.colorLazy = this.parseHexa(this.value)
       }
-      this.initSwatches()
+      if (!this.hideSwatches) this.initSwatches()
       this.validate()
       this.setUICursors()
     },
@@ -566,14 +584,16 @@ export default {
     },
     deleteSwatch(swatch) {
       this.swatchesLazy = this.swatchesLazy.filter((s) => s !== swatch)
+      this.$emit('update:swatches', this.swatchesLazy)
       this.$emit('deleteSwatch', swatch)
     },
     addRemoveCurrentSwatch() {
       if (this.hasSelectedSwatch) {
         this.deleteSwatch(this.inputValue)
       } else {
-        this.$emit('addSwatch', this.inputValue)
         this.swatchesLazy.push(this.inputValue)
+        this.$emit('update:swatches', this.swatchesLazy)
+        this.$emit('addSwatch', this.inputValue)
       }
     }
   },
