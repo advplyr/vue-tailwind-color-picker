@@ -78,7 +78,8 @@ var script = {
     swatches: {
       type: Array,
       default: () => []
-    }
+    },
+    hideSwatches: Boolean
   },
 
   data() {
@@ -89,6 +90,7 @@ var script = {
       draggingLineCursor: false,
       draggingCanvasCursor: false,
       draggingOpacityCursor: false,
+      dragStartColor: null,
       lineWidth: 160,
       lineLeft: 0,
       canvasWidth: 208,
@@ -135,6 +137,16 @@ var script = {
       }
 
     },
+    swatchesValue: {
+      get() {
+        return this.swatches || [];
+      },
+
+      set(val) {
+        this.$emit('update:swatches', val);
+      }
+
+    },
 
     hasSelectedSwatch() {
       return this.swatchesLazy.includes(this.inputValue);
@@ -162,6 +174,7 @@ var script = {
       }
 
       this.registerListeners();
+      this.dragStartColor = this.color;
       this.draggingCanvasCursor = true;
       this.setSizePoses();
       this.canvasCursor = this.$refs.canvasCursor;
@@ -179,6 +192,7 @@ var script = {
       }
 
       this.registerListeners();
+      this.dragStartColor = this.color;
       this.draggingLineCursor = true;
       this.setSizePoses();
       this.lineCursor = this.$refs.lineCursor;
@@ -195,6 +209,7 @@ var script = {
       }
 
       this.registerListeners();
+      this.dragStartColor = this.color;
       this.draggingOpacityCursor = true;
       this.setSizePoses();
       this.opacityCursor = this.$refs.opacityCursor;
@@ -206,6 +221,12 @@ var script = {
     },
 
     mouseup(e) {
+      if (this.draggingLineCursor || this.draggingCanvasCursor || this.draggingOpacityCursor) {
+        if (this.dragStartColor !== this.color) {
+          this.$emit('change', this.color);
+        }
+      }
+
       this.draggingLineCursor = false;
       this.draggingCanvasCursor = false;
       this.draggingOpacityCursor = false;
@@ -372,7 +393,7 @@ var script = {
         this.colorLazy = this.parseHexa(this.value);
       }
 
-      this.initSwatches();
+      if (!this.hideSwatches) this.initSwatches();
       this.validate();
       this.setUICursors();
     },
@@ -584,6 +605,7 @@ var script = {
 
     deleteSwatch(swatch) {
       this.swatchesLazy = this.swatchesLazy.filter(s => s !== swatch);
+      this.$emit('update:swatches', this.swatchesLazy);
       this.$emit('deleteSwatch', swatch);
     },
 
@@ -591,8 +613,9 @@ var script = {
       if (this.hasSelectedSwatch) {
         this.deleteSwatch(this.inputValue);
       } else {
-        this.$emit('addSwatch', this.inputValue);
         this.swatchesLazy.push(this.inputValue);
+        this.$emit('update:swatches', this.swatchesLazy);
+        this.$emit('addSwatch', this.inputValue);
       }
     }
 
@@ -914,6 +937,9 @@ var __vue_render__ = function () {
   })]), _vm._v(" "), _c('div', {
     staticClass: "px-2 text-gray-500 cursor-pointer",
     on: {
+      "mousedown": function ($event) {
+        $event.preventDefault();
+      },
       "click": function ($event) {
         $event.stopPropagation();
         $event.preventDefault();
@@ -933,7 +959,7 @@ var __vue_render__ = function () {
       "fill": "currentColor",
       "d": "M12,18.17L8.83,15L7.42,16.41L12,21L16.59,16.41L15.17,15M12,5.83L15.17,9L16.58,7.59L12,3L7.41,7.59L8.83,9L12,5.83Z"
     }
-  })])])]), _vm._v(" "), _c('div', {
+  })])])]), _vm._v(" "), !_vm.hideSwatches ? _c('div', {
     staticClass: "flex mt-2 flex-wrap px-1"
   }, [_vm._l(_vm.swatchesLazy, function (swatch) {
     return [_c('div', {
@@ -990,7 +1016,7 @@ var __vue_render__ = function () {
       "fill": "currentColor",
       "d": "M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"
     }
-  })])])], 2)])]);
+  })])])], 2) : _vm._e()])]);
 };
 
 var __vue_staticRenderFns__ = [];

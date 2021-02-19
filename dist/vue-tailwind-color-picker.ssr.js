@@ -183,7 +183,8 @@ var script = {
       default: function _default() {
         return [];
       }
-    }
+    },
+    hideSwatches: Boolean
   },
   data: function data() {
     return {
@@ -193,6 +194,7 @@ var script = {
       draggingLineCursor: false,
       draggingCanvasCursor: false,
       draggingOpacityCursor: false,
+      dragStartColor: null,
       lineWidth: 160,
       lineLeft: 0,
       canvasWidth: 208,
@@ -236,6 +238,14 @@ var script = {
         this.$emit('input', val);
       }
     },
+    swatchesValue: {
+      get: function get() {
+        return this.swatches || [];
+      },
+      set: function set(val) {
+        this.$emit('update:swatches', val);
+      }
+    },
     hasSelectedSwatch: function hasSelectedSwatch() {
       return this.swatchesLazy.includes(this.inputValue);
     },
@@ -258,6 +268,7 @@ var script = {
       }
 
       this.registerListeners();
+      this.dragStartColor = this.color;
       this.draggingCanvasCursor = true;
       this.setSizePoses();
       this.canvasCursor = this.$refs.canvasCursor;
@@ -274,6 +285,7 @@ var script = {
       }
 
       this.registerListeners();
+      this.dragStartColor = this.color;
       this.draggingLineCursor = true;
       this.setSizePoses();
       this.lineCursor = this.$refs.lineCursor;
@@ -289,6 +301,7 @@ var script = {
       }
 
       this.registerListeners();
+      this.dragStartColor = this.color;
       this.draggingOpacityCursor = true;
       this.setSizePoses();
       this.opacityCursor = this.$refs.opacityCursor;
@@ -299,6 +312,12 @@ var script = {
       e.preventDefault();
     },
     mouseup: function mouseup(e) {
+      if (this.draggingLineCursor || this.draggingCanvasCursor || this.draggingOpacityCursor) {
+        if (this.dragStartColor !== this.color) {
+          this.$emit('change', this.color);
+        }
+      }
+
       this.draggingLineCursor = false;
       this.draggingCanvasCursor = false;
       this.draggingOpacityCursor = false;
@@ -463,7 +482,7 @@ var script = {
         this.colorLazy = this.parseHexa(this.value);
       }
 
-      this.initSwatches();
+      if (!this.hideSwatches) this.initSwatches();
       this.validate();
       this.setUICursors();
     },
@@ -667,14 +686,16 @@ var script = {
       this.swatchesLazy = this.swatchesLazy.filter(function (s) {
         return s !== swatch;
       });
+      this.$emit('update:swatches', this.swatchesLazy);
       this.$emit('deleteSwatch', swatch);
     },
     addRemoveCurrentSwatch: function addRemoveCurrentSwatch() {
       if (this.hasSelectedSwatch) {
         this.deleteSwatch(this.inputValue);
       } else {
-        this.$emit('addSwatch', this.inputValue);
         this.swatchesLazy.push(this.inputValue);
+        this.$emit('update:swatches', this.swatchesLazy);
+        this.$emit('addSwatch', this.inputValue);
       }
     }
   },
@@ -784,7 +805,7 @@ var __vue_render__ = function __vue_render__() {
     display: _vm.inputType === 'rgba' ? '' : 'none'
   }) + "><div><p class=\"text-center text-gray-500 text-sm\">R</p> <input" + _vm._ssrAttr("value", _vm.colorLazy.r) + " class=\"shadow appearance-none border rounded text-center w-10 h-8 text-grey-darker\"></div> <div class=\"mx-1\"><p class=\"text-center text-gray-500 text-sm\">G</p> <input" + _vm._ssrAttr("value", _vm.colorLazy.g) + " class=\"shadow appearance-none border rounded text-center w-10 h-8 text-grey-darker\"></div> <div class=\"mr-1\"><p class=\"text-center text-gray-500 text-sm\">B</p> <input" + _vm._ssrAttr("value", _vm.colorLazy.b) + " class=\"shadow appearance-none border rounded text-center w-10 h-8 text-grey-darker\"></div> <div><p class=\"text-center text-gray-500 text-sm\">A</p> <input" + _vm._ssrAttr("value", _vm.colorLazy.a) + " class=\"shadow appearance-none border rounded text-center w-10 h-8 text-grey-darker\"></div></div> <div class=\"mr-3\"" + _vm._ssrStyle(null, null, {
     display: _vm.inputType === 'hexa' ? '' : 'none'
-  }) + "><p class=\"text-gray-500 text-center text-sm\">HEXA</p> <input" + _vm._ssrAttr("value", _vm.colorLazy.hexa) + " class=\"shadow appearance-none border rounded text-center w-40 h-8 text-grey-darker\"></div> <div class=\"px-2 text-gray-500 cursor-pointer\"><svg viewBox=\"0 0 24 24\" style=\"width:24px;height:24px\"><path fill=\"currentColor\" d=\"M12,18.17L8.83,15L7.42,16.41L12,21L16.59,16.41L15.17,15M12,5.83L15.17,9L16.58,7.59L12,3L7.41,7.59L8.83,9L12,5.83Z\"></path></svg></div></div> <div class=\"flex mt-2 flex-wrap px-1\">" + _vm._ssrList(_vm.swatchesLazy, function (swatch) {
+  }) + "><p class=\"text-gray-500 text-center text-sm\">HEXA</p> <input" + _vm._ssrAttr("value", _vm.colorLazy.hexa) + " class=\"shadow appearance-none border rounded text-center w-40 h-8 text-grey-darker\"></div> <div class=\"px-2 text-gray-500 cursor-pointer\"><svg viewBox=\"0 0 24 24\" style=\"width:24px;height:24px\"><path fill=\"currentColor\" d=\"M12,18.17L8.83,15L7.42,16.41L12,21L16.59,16.41L15.17,15M12,5.83L15.17,9L16.58,7.59L12,3L7.41,7.59L8.83,9L12,5.83Z\"></path></svg></div></div> " + (!_vm.hideSwatches ? "<div class=\"flex mt-2 flex-wrap px-1\">" + _vm._ssrList(_vm.swatchesLazy, function (swatch) {
     return "<div class=\"w-8 h-8 m-1 relative cursor-pointer rounded-full shadow-md\"" + _vm._ssrStyle(null, {
       backgroundColor: swatch
     }, null) + "><div class=\"h-full w-full rounded-full border-2 border-gray-200 p-0 relative\"" + _vm._ssrStyle(null, null, {
@@ -792,7 +813,7 @@ var __vue_render__ = function __vue_render__() {
     }) + "></div></div>";
   }) + " <div class=\"w-8 h-8 m-1 cursor-pointer rounded-full shadow-md text-gray-600 flex items-center justify-center\"" + _vm._ssrStyle(null, {
     backgroundColor: _vm.color
-  }, null) + ">" + (!_vm.hasSelectedSwatch ? "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 20 20\" fill=\"currentColor\" class=\"h-6 w-6\"><path fill-rule=\"evenodd\" d=\"M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z\" clip-rule=\"evenodd\"></path></svg>" : "<svg viewBox=\"0 0 24 24\" class=\"h-5 w-5\"><path fill=\"currentColor\" d=\"M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z\"></path></svg>") + "</div></div></div>")]);
+  }, null) + ">" + (!_vm.hasSelectedSwatch ? "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 20 20\" fill=\"currentColor\" class=\"h-6 w-6\"><path fill-rule=\"evenodd\" d=\"M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z\" clip-rule=\"evenodd\"></path></svg>" : "<svg viewBox=\"0 0 24 24\" class=\"h-5 w-5\"><path fill=\"currentColor\" d=\"M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z\"></path></svg>") + "</div></div>" : "<!---->") + "</div>")]);
 };
 
 var __vue_staticRenderFns__ = [];
@@ -804,7 +825,7 @@ var __vue_inject_styles__ = undefined;
 var __vue_scope_id__ = undefined;
 /* module identifier */
 
-var __vue_module_identifier__ = "data-v-53c147cb";
+var __vue_module_identifier__ = "data-v-66cc2436";
 /* functional template */
 
 var __vue_is_functional_template__ = false;
