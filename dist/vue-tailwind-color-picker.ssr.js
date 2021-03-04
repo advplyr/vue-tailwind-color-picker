@@ -314,7 +314,7 @@ var script = {
     mouseup: function mouseup(e) {
       if (this.draggingLineCursor || this.draggingCanvasCursor || this.draggingOpacityCursor) {
         if (this.dragStartColor !== this.color) {
-          this.$emit('change', this.color);
+          this.$emit('change', this.colorData.hexa);
         }
       }
 
@@ -680,6 +680,7 @@ var script = {
       this.colorData = _objectSpread2({}, parsedHexa);
       this.colorLazy = _objectSpread2({}, parsedHexa);
       this.inputValue = parsedHexa.hexa;
+      this.$emit('change', this.colorData.hexa);
       this.setUICursors();
     },
     deleteSwatch: function deleteSwatch(swatch) {
@@ -825,7 +826,7 @@ var __vue_inject_styles__ = undefined;
 var __vue_scope_id__ = undefined;
 /* module identifier */
 
-var __vue_module_identifier__ = "data-v-66cc2436";
+var __vue_module_identifier__ = "data-v-7273455c";
 /* functional template */
 
 var __vue_is_functional_template__ = false;

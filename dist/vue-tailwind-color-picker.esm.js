@@ -223,7 +223,7 @@ var script = {
     mouseup(e) {
       if (this.draggingLineCursor || this.draggingCanvasCursor || this.draggingOpacityCursor) {
         if (this.dragStartColor !== this.color) {
-          this.$emit('change', this.color);
+          this.$emit('change', this.colorData.hexa);
         }
       }
 
@@ -600,6 +600,7 @@ var script = {
       this.colorLazy = { ...parsedHexa
       };
       this.inputValue = parsedHexa.hexa;
+      this.$emit('change', this.colorData.hexa);
       this.setUICursors();
     },
 

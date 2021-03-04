@@ -211,7 +211,7 @@ export default {
     mouseup(e) {
       if (this.draggingLineCursor || this.draggingCanvasCursor || this.draggingOpacityCursor) {
         if (this.dragStartColor !== this.color) {
-          this.$emit('change', this.color)
+          this.$emit('change', this.colorData.hexa)
         }
       }
       this.draggingLineCursor = false
@@ -579,6 +579,7 @@ export default {
       this.colorData = { ...parsedHexa }
       this.colorLazy = { ...parsedHexa }
       this.inputValue = parsedHexa.hexa
+      this.$emit('change', this.colorData.hexa)
 
       this.setUICursors()
     },
