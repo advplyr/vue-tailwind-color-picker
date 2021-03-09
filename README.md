@@ -29,7 +29,7 @@ import VueTailwindColorPicker from 'vue-tailwind-color-picker'
 Vue.use(VueTailwindColorPicker)
 ```
 
-add nuxt-config.js
+add nuxt.config.js
 
 ```
 plugins: [
@@ -50,7 +50,7 @@ import VueTailwindColorPicker from 'vue-tailwind-color-picker'
 Vue.use(VueTailwindColorPicker)
 ```
 
-add nuxt-config.ts
+add nuxt.config.ts
 
 ```
 plugins: [
