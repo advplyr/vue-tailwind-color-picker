@@ -14,6 +14,50 @@ Color picker for vue using Tailwind v2.
 $ npm install vue-tailwind-color-picker
 ```
 
+```bash
+$ yarn add vue-tailwind-color-picker
+```
+
+## Installation Nuxt
+Global add plugins 
+
+plugins/vue-tailwind-color-picker.js
+
+```
+import Vue from 'vue'
+import VueTailwindColorPicker from 'vue-tailwind-color-picker'
+Vue.use(VueTailwindColorPicker)
+```
+
+add nuxt-config.js
+
+```
+plugins: [
+    '~/plugins/vue-tailwind-color-picker',
+  ],
+```
+
+## Installation Nuxt Typescript
+
+Global add plugins 
+
+plugins/vue-tailwind-color-picker.ts
+
+```
+import Vue from 'vue'
+// @ts-ignore
+import VueTailwindColorPicker from 'vue-tailwind-color-picker'
+Vue.use(VueTailwindColorPicker)
+```
+
+add nuxt-config.ts
+
+```
+plugins: [
+    '~/plugins/vue-tailwind-color-picker',
+  ],
+```
+
 ## Usage
 
 ```js
