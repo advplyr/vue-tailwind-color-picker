@@ -4,9 +4,9 @@ Color picker for vue using Tailwind v2.
 
 **Requires Tailwind**
 
-## [Live demo](https://mcoop320.github.io/vue-tailwind-color-picker/)
+## [Live demo](https://advplyr.github.io/vue-tailwind-color-picker/)
 
-<img src="https://raw.githubusercontent.com/mcoop320/vue-tailwind-color-picker/master/sample.png" />
+<img src="https://raw.githubusercontent.com/advplyr/vue-tailwind-color-picker/master/sample.png" />
 
 ## Installation
 
